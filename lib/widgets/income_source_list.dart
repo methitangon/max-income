@@ -14,6 +14,7 @@ class IncomeSourceList extends StatelessWidget {
         final incomeSource = incomeSources[index];
         return Card(
           child: ListTile(
+            leading: Icon(_getIconForType(incomeSource.type)),
             title: Text(incomeSource.name),
             subtitle: Text(incomeSource.type),
             // Add onTap to navigate to details screen
@@ -21,5 +22,19 @@ class IncomeSourceList extends StatelessWidget {
         );
       },
     );
+  }
+
+  // Helper function to get icon based on income source type
+  IconData _getIconForType(String type) {
+    switch (type) {
+      case 'rental':
+        return Icons.house;
+      case 'vehicle':
+        return Icons.local_shipping;
+      case 'coffee':
+        return Icons.coffee;
+      default:
+        return Icons.attach_money;
+    }
   }
 }
