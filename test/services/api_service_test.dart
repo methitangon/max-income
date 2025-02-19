@@ -14,7 +14,7 @@ void main() {
       client = MockClient((request) async {
         if (request.url.toString() == '${ApiService.baseUrl}/income_sources') {
           return http.Response(
-              '[{"id": 1, "name": "Rental A", "type": "rental"}, {"id": 2, "name": "Truck B", "type": "vehicle"}]',
+              '[{"id": 1, "name": "Rental A", "type": "rental", "amount": 1000.0}, {"id": 2, "name": "Truck B", "type": "vehicle", "amount": 2000.0}]',
               200);
         }
         return http.Response('Not found', 404);
@@ -31,9 +31,11 @@ void main() {
       expect(result[0].id, 1);
       expect(result[0].name, 'Rental A');
       expect(result[0].type, 'rental');
+      expect(result[0].amount, 1000);
       expect(result[1].id, 2);
       expect(result[1].name, 'Truck B');
       expect(result[1].type, 'vehicle');
+      expect(result[1].amount, 2000);
     });
 
     test('fetchIncomeSources handles error responses', () async {
@@ -55,13 +57,15 @@ void main() {
             request.url.toString() == '${ApiService.baseUrl}/income_sources') {
           // Simulate successful creation with a 201 Created response
           return http.Response(
-              '{"id": 3, "name": "New Source", "type": "other"}', 201);
+              '{"id": 3, "name": "New Source", "type": "other", "amount": 3000.0}',
+              201);
         }
         return http.Response('Not found', 404);
       });
 
       apiService = ApiService(client: client);
-      final newSource = IncomeSource(id: 3, name: 'New Source', type: 'other');
+      final newSource =
+          IncomeSource(id: 3, name: 'New Source', type: 'other', amount: 3000);
 
       final createdSource = await apiService.createIncomeSource(newSource);
 
@@ -69,6 +73,7 @@ void main() {
       expect(createdSource.id, 3);
       expect(createdSource.name, 'New Source');
       expect(createdSource.type, 'other');
+      expect(createdSource.amount, 3000);
     });
 
     test('updateIncomeSource sends a PUT request and updates the income source',
@@ -84,8 +89,8 @@ void main() {
       });
 
       apiService = ApiService(client: client);
-      final updatedSource =
-          IncomeSource(id: 1, name: 'Updated Source', type: 'updated');
+      final updatedSource = IncomeSource(
+          id: 1, name: 'Updated Source', type: 'updated', amount: 1000);
 
       await apiService.updateIncomeSource(updatedSource);
 
@@ -99,8 +104,8 @@ void main() {
       });
 
       apiService = ApiService(client: client);
-      final updatedSource =
-          IncomeSource(id: 1, name: 'Updated Source', type: 'updated');
+      final updatedSource = IncomeSource(
+          id: 1, name: 'Updated Source', type: 'updated', amount: 1000);
 
       expect(
           () => apiService.updateIncomeSource(updatedSource), throwsException);
