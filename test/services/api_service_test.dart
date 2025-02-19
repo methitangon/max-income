@@ -46,5 +46,95 @@ void main() {
       // Call the method and expect an exception
       expect(() => apiService.fetchIncomeSources(), throwsException);
     });
+
+    test(
+        'createIncomeSource sends a POST request and returns the created IncomeSource object',
+        () async {
+      final client = MockClient((request) async {
+        if (request.method == 'POST' &&
+            request.url.toString() == '${ApiService.baseUrl}/income_sources') {
+          // Simulate successful creation with a 201 Created response
+          return http.Response(
+              '{"id": 3, "name": "New Source", "type": "other"}', 201);
+        }
+        return http.Response('Not found', 404);
+      });
+
+      apiService = ApiService(client: client);
+      final newSource = IncomeSource(id: 3, name: 'New Source', type: 'other');
+
+      final createdSource = await apiService.createIncomeSource(newSource);
+
+      expect(createdSource, isA<IncomeSource>());
+      expect(createdSource.id, 3);
+      expect(createdSource.name, 'New Source');
+      expect(createdSource.type, 'other');
+    });
+
+    test('updateIncomeSource sends a PUT request and updates the income source',
+        () async {
+      final client = MockClient((request) async {
+        if (request.method == 'PUT' &&
+            request.url.toString() ==
+                '${ApiService.baseUrl}/income_sources/1') {
+          // Simulate successful update
+          return http.Response('Updated successfully', 200);
+        }
+        return http.Response('Not Found', 404);
+      });
+
+      apiService = ApiService(client: client);
+      final updatedSource =
+          IncomeSource(id: 1, name: 'Updated Source', type: 'updated');
+
+      await apiService.updateIncomeSource(updatedSource);
+
+      // Verify that the request was sent correctly (no exceptions thrown)
+    });
+
+    test('updateIncomeSource handles error responses', () async {
+      final client = MockClient((request) async {
+        // Simulate an error response
+        return http.Response('Failed to update', 500);
+      });
+
+      apiService = ApiService(client: client);
+      final updatedSource =
+          IncomeSource(id: 1, name: 'Updated Source', type: 'updated');
+
+      expect(
+          () => apiService.updateIncomeSource(updatedSource), throwsException);
+    });
+
+    test(
+        'deleteIncomeSource sends a DELETE request and deletes the income source',
+        () async {
+      final client = MockClient((request) async {
+        if (request.method == 'DELETE' &&
+            request.url.toString() ==
+                '${ApiService.baseUrl}/income_sources/1') {
+          // Simulate successful deletion
+          return http.Response('', 204); // No content response
+        }
+        return http.Response('Not Found', 404);
+      });
+
+      apiService = ApiService(client: client);
+
+      await apiService.deleteIncomeSource(1);
+
+      // Verify that the request was sent correctly (no exceptions thrown)
+    });
+
+    test('deleteIncomeSource handles error responses', () async {
+      final client = MockClient((request) async {
+        // Simulate an error response
+        return http.Response('Failed to delete', 500);
+      });
+
+      apiService = ApiService(client: client);
+
+      expect(() => apiService.deleteIncomeSource(1), throwsException);
+    });
   });
 }

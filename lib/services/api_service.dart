@@ -19,6 +19,47 @@ class ApiService {
     }
   }
 
-  // Implement other CRUD methods (create, update, delete)
-  //...
+  Future<IncomeSource> createIncomeSource(IncomeSource incomeSource) async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/income_sources'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(incomeSource.toJson()),
+    );
+
+    if (response.statusCode == 201) {
+      // Successful creation
+      final jsonResponse = json.decode(response.body);
+      return IncomeSource.fromJson(jsonResponse);
+    } else {
+      throw Exception('Failed to create income source');
+    }
+  }
+
+  Future<void> updateIncomeSource(IncomeSource incomeSource) async {
+    final response = await client.put(
+      Uri.parse('$baseUrl/income_sources/${incomeSource.id}'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(incomeSource.toJson()),
+    );
+
+    if (response.statusCode == 200) {
+      // Successful update
+      return; // No content to return
+    } else {
+      throw Exception('Failed to update income source');
+    }
+  }
+
+  Future<void> deleteIncomeSource(int id) async {
+    final response = await client.delete(
+      Uri.parse('$baseUrl/income_sources/$id'),
+    );
+
+    if (response.statusCode == 204) {
+      // Successful deletion
+      return; // No content to return
+    } else {
+      throw Exception('Failed to delete income source');
+    }
+  }
 }
