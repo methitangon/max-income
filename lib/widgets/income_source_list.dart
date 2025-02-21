@@ -9,15 +9,30 @@ class IncomeSourceList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      shrinkWrap: true, // Add this property
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: incomeSources.length,
       itemBuilder: (context, index) {
         final incomeSource = incomeSources[index];
         return Card(
-          child: ListTile(
-            leading: Icon(_getIconForType(incomeSource.type)),
-            title: Text(incomeSource.name),
-            subtitle: Text(incomeSource.type),
-            // Add onTap to navigate to details screen
+          child: Column(
+            children: [
+              ListTile(
+                leading: Icon(_getIconForType(incomeSource.type)),
+                title: Text(incomeSource.name),
+                subtitle: Text(incomeSource.type),
+              ),
+              // Display costs here
+              if (incomeSource.costs.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Column(
+                    children: incomeSource.costs
+                        .map((cost) => Text('- ${cost.name}: \$${cost.amount}'))
+                        .toList(),
+                  ),
+                ),
+            ],
           ),
         );
       },

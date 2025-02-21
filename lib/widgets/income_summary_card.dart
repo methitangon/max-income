@@ -19,7 +19,10 @@ class IncomeSummaryCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '\$${totalIncome.toStringAsFixed(2)}',
+              // Display 0 if totalIncome is 0
+              totalIncome == 0
+                  ? '\$0.00'
+                  : '\$${totalIncome.toStringAsFixed(2)}',
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ],

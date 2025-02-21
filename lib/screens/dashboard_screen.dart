@@ -9,8 +9,7 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double totalIncome =
-        mockIncomeSources.fold<double>(0, (sum, item) => sum + item.amount);
+    mockIncomeSources.fold<double>(0, (sum, item) => sum + item.amount);
 
     return Scaffold(
       appBar: AppBar(
@@ -22,7 +21,7 @@ class DashboardScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MonthlyCashFlow(totalIncome: totalIncome),
+              MonthlyCashFlow(),
               const SizedBox(height: 32),
               const Text(
                 'Income Chart',
@@ -39,10 +38,7 @@ class DashboardScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              SizedBox(
-                height: 400, // or FlexFit.tight
-                child: IncomeStreams(incomeSources: mockIncomeSources),
-              ),
+              IncomeStreams(incomeSources: mockIncomeSources),
               const SizedBox(height: 20),
             ],
           ),
