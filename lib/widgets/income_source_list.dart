@@ -3,8 +3,13 @@ import 'package:max_income/models/income_source.dart';
 
 class IncomeSourceList extends StatelessWidget {
   final List<IncomeSource> incomeSources;
+  final Function(IncomeSource) onNewIncomeSource; // Add this line
 
-  const IncomeSourceList({super.key, required this.incomeSources});
+  const IncomeSourceList({
+    super.key,
+    required this.incomeSources,
+    required this.onNewIncomeSource,
+  });
 
   @override
   Widget build(BuildContext context) {

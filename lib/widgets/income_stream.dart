@@ -17,7 +17,10 @@ class IncomeStreams extends StatelessWidget {
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
-        IncomeSourceList(incomeSources: incomeSources),
+        IncomeSourceList(
+          incomeSources: incomeSources,
+          onNewIncomeSource: (IncomeSource) {},
+        ),
       ],
     );
   }
