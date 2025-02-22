@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:max_income/models/income_source.dart';
+// ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
 
 class IncomeChart extends StatelessWidget {

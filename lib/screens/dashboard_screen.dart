@@ -14,7 +14,7 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  List<IncomeSource> _incomeSources = mockIncomeSources;
+  final List<IncomeSource> _incomeSources = mockIncomeSources;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MonthlyCashFlow(),
+              MonthlyCashFlow(incomeSources: _incomeSources),
               const SizedBox(height: 32),
               const Text(
                 'Income Chart',

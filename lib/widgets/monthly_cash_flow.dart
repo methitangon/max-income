@@ -1,20 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:max_income/mock_income_source.dart';
+
+import 'package:max_income/models/income_source.dart';
 import 'package:max_income/widgets/cost_summary_card.dart';
 import 'package:max_income/widgets/income_summary_card.dart';
 
 class MonthlyCashFlow extends StatelessWidget {
-  const MonthlyCashFlow({super.key});
+  final List<IncomeSource> incomeSources;
+
+  const MonthlyCashFlow({
+    super.key,
+    required this.incomeSources,
+  });
 
   @override
   Widget build(BuildContext context) {
     // Calculate net income
-    double netIncome = mockIncomeSources.fold<double>(0, (sum, incomeSource) {
+    double netIncome = incomeSources.fold<double>(0, (sum, incomeSource) {
       return sum + incomeSource.amount;
     });
 
     // Calculate total costs (moved this line up)
-    double totalCosts = mockIncomeSources.fold<double>(0, (sum, incomeSource) {
+    double totalCosts = incomeSources.fold<double>(0, (sum, incomeSource) {
       return sum +
           incomeSource.costs
               .fold<double>(0, (costSum, cost) => costSum + cost.amount);
