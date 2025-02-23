@@ -4,7 +4,7 @@ import 'package:max_income/mock_income_source.dart';
 
 import 'package:max_income/screens/dashboard_screen.dart';
 import 'package:max_income/widgets/income_chart.dart';
-import 'package:max_income/widgets/income_stream.dart';
+import 'package:max_income/widgets/income_source_list.dart';
 import 'package:max_income/widgets/monthly_cash_flow.dart';
 
 void main() {
@@ -22,7 +22,7 @@ void main() {
       expect(find.byType(MonthlyCashFlow), findsOneWidget);
       expect(find.text('Income Chart'), findsOneWidget);
       expect(find.byType(IncomeChart), findsOneWidget);
-      expect(find.byType(IncomeStreams), findsOneWidget);
+      expect(find.byType(IncomeSourceList), findsOneWidget);
       expect(find.byType(FloatingActionButton), findsOneWidget);
     });
 
@@ -42,6 +42,11 @@ void main() {
       // Find the IncomeChart widget and verify its data
       final chart = tester.widget<IncomeChart>(find.byType(IncomeChart));
       expect(chart.incomeSources.length, initialIncomeSourcesCount + 1);
+
+      // Verify IncomeSourceList was updated
+      final list =
+          tester.widget<IncomeSourceList>(find.byType(IncomeSourceList));
+      expect(list.incomeSources.length, initialIncomeSourcesCount + 1);
     });
 
     testWidgets('new income source has correct default values',
@@ -57,9 +62,10 @@ void main() {
       await tester.tap(find.byType(FloatingActionButton));
       await tester.pumpAndSettle();
 
-      // Find the IncomeChart widget and get the new income source
-      final chart = tester.widget<IncomeChart>(find.byType(IncomeChart));
-      final newSource = chart.incomeSources.last;
+      // Find the IncomeSourceList widget and get the new income source
+      final list =
+          tester.widget<IncomeSourceList>(find.byType(IncomeSourceList));
+      final newSource = list.incomeSources.last;
 
       // Verify the new income source properties
       expect(newSource.name, 'New Income ${initialIncomeSourcesCount + 1}');
@@ -84,47 +90,52 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify we can scroll to see more content
-      expect(find.byType(IncomeStreams), findsOneWidget);
+      expect(find.byType(IncomeSourceList), findsOneWidget);
     });
 
-    testWidgets('chart updates when new income source is added',
+    testWidgets('updates all widgets when new income source is added',
         (WidgetTester tester) async {
       await tester.pumpWidget(const MaterialApp(
         home: DashboardScreen(),
       ));
 
-      // Get initial chart state
-      final initialChart = tester.widget<IncomeChart>(find.byType(IncomeChart));
-      final initialSourcesCount = initialChart.incomeSources.length;
+      final initialSourcesCount = mockIncomeSources.length;
 
       // Add new income source
       await tester.tap(find.byType(FloatingActionButton));
       await tester.pumpAndSettle();
 
-      // Verify chart was updated
-      final updatedChart = tester.widget<IncomeChart>(find.byType(IncomeChart));
-      expect(updatedChart.incomeSources.length, initialSourcesCount + 1);
+      // Verify all widgets were updated with new data
+      final chart = tester.widget<IncomeChart>(find.byType(IncomeChart));
+      expect(chart.incomeSources.length, initialSourcesCount + 1);
+
+      final list =
+          tester.widget<IncomeSourceList>(find.byType(IncomeSourceList));
+      expect(list.incomeSources.length, initialSourcesCount + 1);
+
+      final cashFlow =
+          tester.widget<MonthlyCashFlow>(find.byType(MonthlyCashFlow));
+      expect(cashFlow.incomeSources.length, initialSourcesCount + 1);
     });
 
-    testWidgets('monthly cash flow updates when new income source is added',
+    testWidgets('calculates and displays correct totals',
         (WidgetTester tester) async {
       await tester.pumpWidget(const MaterialApp(
         home: DashboardScreen(),
       ));
 
-      // Get initial monthly cash flow data
-      final initialCashFlow =
-          tester.widget<MonthlyCashFlow>(find.byType(MonthlyCashFlow));
-      final initialSourcesCount = initialCashFlow.incomeSources.length;
+      // Calculate expected totals from mock data
+      final expectedIncome = mockIncomeSources.fold<double>(
+          0, (sum, source) => sum + source.amount);
+      final expectedCosts = mockIncomeSources.fold<double>(
+          0,
+          (sum, source) =>
+              sum +
+              source.costs.fold(0.0, (costSum, cost) => costSum + cost.amount));
 
-      // Add new income source
-      await tester.tap(find.byType(FloatingActionButton));
-      await tester.pumpAndSettle();
-
-      // Verify monthly cash flow was updated with new data
-      final updatedCashFlow =
-          tester.widget<MonthlyCashFlow>(find.byType(MonthlyCashFlow));
-      expect(updatedCashFlow.incomeSources.length, initialSourcesCount + 1);
+      // Verify the totals are displayed correctly
+      expect(find.textContaining(expectedIncome.toString()), findsOneWidget);
+      expect(find.textContaining(expectedCosts.toString()), findsOneWidget);
     });
   });
 }

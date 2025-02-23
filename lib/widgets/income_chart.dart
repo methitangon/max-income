@@ -128,6 +128,7 @@ class IncomeChart extends StatelessWidget {
     );
   }
 
+  // ignore: library_private_types_in_public_api
   BarChartGroupData generateGroup(int x, _IncomeData data) {
     final totalIncome = data.incomes.fold(0.0, (sum, amount) => sum + amount);
     final totalCosts = data.costs.fold(0.0, (sum, amount) => sum + amount);
@@ -189,20 +190,6 @@ class IncomeChart extends StatelessWidget {
         return 2;
       default:
         return 0;
-    }
-  }
-
-  // Helper function to get color based on income source type
-  Color _getColorForType(String type) {
-    switch (type) {
-      case 'rental':
-        return Colors.blue;
-      case 'vehicle':
-        return Colors.green;
-      case 'coffee':
-        return Colors.orange;
-      default:
-        return Colors.grey;
     }
   }
 

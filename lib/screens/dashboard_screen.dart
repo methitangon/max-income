@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:max_income/mock_income_source.dart';
 import 'package:max_income/models/income_source.dart';
 import 'package:max_income/widgets/income_chart.dart';
-import 'package:max_income/widgets/income_stream.dart';
 import 'package:max_income/widgets/monthly_cash_flow.dart';
+import 'package:max_income/widgets/income_source_list.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -45,8 +45,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
               const SizedBox(height: 32),
-              IncomeStreams(
+              IncomeSourceList(
                 incomeSources: _incomeSources,
+                onNewIncomeSource: _addNewIncomeSource,
               ),
               const SizedBox(height: 20),
             ],
