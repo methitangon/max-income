@@ -19,6 +19,7 @@ class IncomeStreams extends StatelessWidget {
         const SizedBox(height: 16),
         IncomeSourceList(
           incomeSources: incomeSources,
+          // ignore: avoid_types_as_parameter_names
           onNewIncomeSource: (IncomeSource) {},
         ),
       ],

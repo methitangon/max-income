@@ -65,7 +65,12 @@ void main() {
 
       apiService = ApiService(client: client);
       final newSource = IncomeSource(
-          id: 3, name: 'New Source', type: 'other', amount: 3000, costs: []);
+          id: 3,
+          name: 'New Source',
+          type: 'other',
+          amount: 3000,
+          costs: [],
+          status: 'active');
 
       final createdSource = await apiService.createIncomeSource(newSource);
 
@@ -94,7 +99,8 @@ void main() {
           name: 'Updated Source',
           type: 'updated',
           amount: 1000,
-          costs: []);
+          costs: [],
+          status: 'active');
 
       await apiService.updateIncomeSource(updatedSource);
 
@@ -113,7 +119,8 @@ void main() {
           name: 'Updated Source',
           type: 'updated',
           amount: 1000,
-          costs: []);
+          costs: [],
+          status: 'active');
 
       expect(
           () => apiService.updateIncomeSource(updatedSource), throwsException);

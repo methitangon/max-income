@@ -43,6 +43,8 @@ class IncomeSourceList extends StatelessWidget {
               children: [
                 Text('Total Income: \$${totalIncome.toStringAsFixed(2)}'),
                 Text('Total Costs: \$${totalCosts.toStringAsFixed(2)}'),
+                // Display the status of the first income source of this type
+                Text('Status: ${sourcesForType.first.status}'),
               ],
             ),
             onTap: () {
