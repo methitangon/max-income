@@ -1,17 +1,21 @@
+// models/income_source.dart
+
+// ignore_for_file: constant_identifier_names
+
 class IncomeSource {
   final int id;
   final String name;
   final String type;
   final double amount;
-  final List<Cost> costs; // Add costs property
-  final String status;
+  final List<Cost> costs;
+  final IncomeSourceStatus status;
 
   IncomeSource({
     required this.id,
     required this.name,
     required this.type,
     required this.amount,
-    required this.costs, // Add costs to constructor
+    required this.costs,
     required this.status,
   });
 
@@ -24,8 +28,8 @@ class IncomeSource {
       costs: (json['costs'] as List<dynamic>?)
               ?.map((cost) => Cost.fromJson(cost))
               .toList() ??
-          [], // Parse costs from JSON
-      status: json['status'] as String,
+          [],
+      status: IncomeSourceStatus.values.byName(json['status'] as String),
     );
   }
 
@@ -35,9 +39,8 @@ class IncomeSource {
       'name': name,
       'type': type,
       'amount': amount,
-      'costs':
-          costs.map((cost) => cost.toJson()).toList(), // Include costs in JSON
-      'status': status,
+      'costs': costs.map((cost) => cost.toJson()).toList(),
+      'status': status.name,
     };
   }
 }
@@ -68,7 +71,7 @@ class Cost {
 
 enum IncomeSourceStatus {
   Active,
-  OnHold,
+  InActive,
   Underperforming,
   Unpaid,
 }

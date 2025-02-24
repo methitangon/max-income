@@ -10,7 +10,7 @@ void main() {
         type: 'rental',
         amount: 1000.0,
         costs: [],
-        status: 'active',
+        status: IncomeSourceStatus.Active,
       );
 
       expect(source.id, 1);
@@ -18,7 +18,7 @@ void main() {
       expect(source.type, 'rental');
       expect(source.amount, 1000.0);
       expect(source.costs, isEmpty);
-      expect(source.status, 'active');
+      expect(source.status, IncomeSourceStatus.Active);
     });
 
     test('creates an IncomeSource instance with costs', () {
@@ -31,7 +31,7 @@ void main() {
           Cost(name: 'Maintenance', amount: 100.0, frequency: 'monthly'),
           Cost(name: 'Insurance', amount: 50.0, frequency: 'monthly'),
         ],
-        status: 'active',
+        status: IncomeSourceStatus.Active,
       );
 
       expect(source.costs.length, 2);
@@ -52,7 +52,7 @@ void main() {
             {'name': 'Maintenance', 'amount': 100.0, 'frequency': 'monthly'},
             {'name': 'Insurance', 'amount': 50.0, 'frequency': 'monthly'},
           ],
-          'status': 'active',
+          'status': 'Active',
         };
 
         final source = IncomeSource.fromJson(json);
@@ -76,7 +76,7 @@ void main() {
             Cost(name: 'Maintenance', amount: 100.0, frequency: 'monthly'),
             Cost(name: 'Insurance', amount: 50.0, frequency: 'monthly'),
           ],
-          status: 'active',
+          status: IncomeSourceStatus.Active,
         );
 
         final json = source.toJson();
@@ -89,7 +89,7 @@ void main() {
           {'name': 'Maintenance', 'amount': 100.0, 'frequency': 'monthly'},
           {'name': 'Insurance', 'amount': 50.0, 'frequency': 'monthly'},
         ]);
-        expect(json['status'], 'active');
+        expect(json['status'], 'Active');
       });
 
       test('handles empty costs array in JSON', () {
@@ -99,12 +99,12 @@ void main() {
           'type': 'rental',
           'amount': 1000.0,
           'costs': [],
-          'status': 'active',
+          'status': 'Active',
         };
 
         final source = IncomeSource.fromJson(json);
         expect(source.costs, isEmpty);
-        expect(source.status, 'active');
+        expect(source.status, IncomeSourceStatus.Active);
       });
 
       test('handles missing costs array in JSON', () {
@@ -113,12 +113,12 @@ void main() {
           'name': 'Rental Property',
           'type': 'rental',
           'amount': 1000.0,
-          'status': 'active',
+          'status': 'Active',
         };
 
         final source = IncomeSource.fromJson(json);
         expect(source.costs, isEmpty);
-        expect(source.status, 'active');
+        expect(source.status, IncomeSourceStatus.Active);
       });
     });
 
@@ -169,13 +169,13 @@ void main() {
           Cost(name: 'Insurance', amount: 50.0, frequency: 'monthly'),
           Cost(name: 'Property Tax', amount: 150.0, frequency: 'monthly'),
         ],
-        status: 'active',
+        status: IncomeSourceStatus.Active,
       );
 
       final totalCosts =
           source.costs.fold(0.0, (sum, cost) => sum + cost.amount);
       expect(totalCosts, 300.0);
-      expect(source.status, 'active');
+      expect(source.status, IncomeSourceStatus.Active);
     });
 
     test('net income calculation is correct', () {
@@ -189,14 +189,14 @@ void main() {
           Cost(name: 'Insurance', amount: 50.0, frequency: 'monthly'),
           Cost(name: 'Property Tax', amount: 150.0, frequency: 'monthly'),
         ],
-        status: 'active',
+        status: IncomeSourceStatus.Active,
       );
 
       final totalCosts =
           source.costs.fold(0.0, (sum, cost) => sum + cost.amount);
       final netIncome = source.amount - totalCosts;
       expect(netIncome, 700.0);
-      expect(source.status, 'active');
+      expect(source.status, IncomeSourceStatus.Active);
     });
   });
 }

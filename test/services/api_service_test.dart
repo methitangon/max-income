@@ -14,7 +14,7 @@ void main() {
       client = MockClient((request) async {
         if (request.url.toString() == '${ApiService.baseUrl}/income_sources') {
           return http.Response(
-              '[{"id": 1, "name": "Rental A", "type": "rental", "amount": 1000.0}, {"id": 2, "name": "Truck B", "type": "vehicle", "amount": 2000.0}]',
+              '[{"id": 1, "name": "Rental A", "type": "rental", "amount": 1000.0, "costs": [], "status": "Active"}, {"id": 2, "name": "Truck B", "type": "vehicle", "amount": 2000.0, "costs": [], "status": "Active"}]',
               200);
         }
         return http.Response('Not found', 404);
@@ -32,10 +32,12 @@ void main() {
       expect(result[0].name, 'Rental A');
       expect(result[0].type, 'rental');
       expect(result[0].amount, 1000);
+      expect(result[0].status, IncomeSourceStatus.Active);
       expect(result[1].id, 2);
       expect(result[1].name, 'Truck B');
       expect(result[1].type, 'vehicle');
       expect(result[1].amount, 2000);
+      expect(result[1].status, IncomeSourceStatus.Active);
     });
 
     test('fetchIncomeSources handles error responses', () async {
@@ -57,7 +59,7 @@ void main() {
             request.url.toString() == '${ApiService.baseUrl}/income_sources') {
           // Simulate successful creation with a 201 Created response
           return http.Response(
-              '{"id": 3, "name": "New Source", "type": "other", "amount": 3000.0}',
+              '{"id": 3, "name": "New Source", "type": "other", "amount": 3000.0, "costs": [], "status": "Active"}',
               201);
         }
         return http.Response('Not found', 404);
@@ -65,12 +67,13 @@ void main() {
 
       apiService = ApiService(client: client);
       final newSource = IncomeSource(
-          id: 3,
-          name: 'New Source',
-          type: 'other',
-          amount: 3000,
-          costs: [],
-          status: 'active');
+        id: 3,
+        name: 'New Source',
+        type: 'other',
+        amount: 3000,
+        costs: [],
+        status: IncomeSourceStatus.Active,
+      );
 
       final createdSource = await apiService.createIncomeSource(newSource);
 
@@ -79,6 +82,7 @@ void main() {
       expect(createdSource.name, 'New Source');
       expect(createdSource.type, 'other');
       expect(createdSource.amount, 3000);
+      expect(createdSource.status, IncomeSourceStatus.Active);
     });
 
     test('updateIncomeSource sends a PUT request and updates the income source',
@@ -95,12 +99,13 @@ void main() {
 
       apiService = ApiService(client: client);
       final updatedSource = IncomeSource(
-          id: 1,
-          name: 'Updated Source',
-          type: 'updated',
-          amount: 1000,
-          costs: [],
-          status: 'active');
+        id: 1,
+        name: 'Updated Source',
+        type: 'updated',
+        amount: 1000,
+        costs: [],
+        status: IncomeSourceStatus.Active,
+      );
 
       await apiService.updateIncomeSource(updatedSource);
 
@@ -115,12 +120,13 @@ void main() {
 
       apiService = ApiService(client: client);
       final updatedSource = IncomeSource(
-          id: 1,
-          name: 'Updated Source',
-          type: 'updated',
-          amount: 1000,
-          costs: [],
-          status: 'active');
+        id: 1,
+        name: 'Updated Source',
+        type: 'updated',
+        amount: 1000,
+        costs: [],
+        status: IncomeSourceStatus.Active,
+      );
 
       expect(
           () => apiService.updateIncomeSource(updatedSource), throwsException);

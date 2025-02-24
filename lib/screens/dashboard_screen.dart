@@ -63,7 +63,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             type: 'other',
             amount: 1000,
             costs: [],
-            status: 'active',
+            status: IncomeSourceStatus.InActive,
           );
           _addNewIncomeSource(newIncome);
         },
