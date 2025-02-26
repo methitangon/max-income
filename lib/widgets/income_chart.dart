@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:max_income/models/income_source.dart';
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
+import 'package:max_income/util/utils.dart';
 
 class IncomeChart extends StatelessWidget {
   final List<IncomeSource> incomeSources;
@@ -22,7 +23,7 @@ class IncomeChart extends StatelessWidget {
           .map((cost) => cost.amount)
           .toList();
       return MapEntry(
-        _getTypeIndex(type),
+        getTypeIndex(type),
         _IncomeData(incomes: incomes, costs: costs),
       );
     }).toList();
@@ -62,7 +63,7 @@ class IncomeChart extends StatelessWidget {
                     return SideTitleWidget(
                       axisSide: meta.axisSide,
                       child: Text(
-                        _getTypeName(value.toInt()),
+                        getTypeName(value.toInt()),
                         style:
                             const TextStyle(color: Colors.black, fontSize: 10),
                       ),
@@ -78,7 +79,7 @@ class IncomeChart extends StatelessWidget {
                     return SideTitleWidget(
                       axisSide: meta.axisSide,
                       child: Text(
-                        _formatCurrency(value),
+                        formatCurrency(value),
                         style: TextStyle(
                           color: value < 0 ? Colors.red : Colors.green,
                           fontSize: 10,
@@ -163,44 +164,6 @@ class IncomeChart extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  // Helper function to get type name from index
-  String _getTypeName(int index) {
-    switch (index) {
-      case 0:
-        return 'rental';
-      case 1:
-        return 'vehicle';
-      case 2:
-        return 'coffee';
-      default:
-        return '';
-    }
-  }
-
-  // Helper function to get index for type
-  int _getTypeIndex(String type) {
-    switch (type) {
-      case 'rental':
-        return 0;
-      case 'vehicle':
-        return 1;
-      case 'coffee':
-        return 2;
-      default:
-        return 0;
-    }
-  }
-
-  // Helper function to format currency values
-  String _formatCurrency(double value) {
-    if (value.abs() >= 1000000) {
-      return '${(value / 1000000).toStringAsFixed(1)}M';
-    } else if (value.abs() >= 1000) {
-      return '${(value / 1000).toStringAsFixed(1)}K';
-    }
-    return value.toStringAsFixed(0);
   }
 }
 

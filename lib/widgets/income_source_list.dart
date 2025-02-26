@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:max_income/models/income_source.dart';
 import 'package:collection/collection.dart';
 import 'package:max_income/screens/income_source_list_detail_screen.dart';
+import 'package:max_income/util/utils.dart';
 
 class IncomeSourceList extends StatelessWidget {
   final List<IncomeSource> incomeSources;
@@ -36,7 +37,7 @@ class IncomeSourceList extends StatelessWidget {
 
         return Card(
           child: ListTile(
-            leading: Icon(_getIconForType(type)),
+            leading: Icon(getIconForType(type)),
             title: Text(type),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,19 +63,5 @@ class IncomeSourceList extends StatelessWidget {
         );
       },
     );
-  }
-
-  // Helper function to get icon based on income source type
-  IconData _getIconForType(String type) {
-    switch (type) {
-      case 'rental':
-        return Icons.house;
-      case 'vehicle':
-        return Icons.local_shipping;
-      case 'coffee':
-        return Icons.coffee;
-      default:
-        return Icons.attach_money;
-    }
   }
 }
