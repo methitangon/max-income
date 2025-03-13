@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:max_income/mock_income_source.dart';
 import 'package:max_income/models/income_source.dart';
+import 'package:max_income/widgets/calendar_event.dart';
 import 'package:max_income/widgets/income_chart.dart';
 import 'package:max_income/widgets/monthly_cash_flow.dart';
 import 'package:max_income/widgets/income_source_list.dart';
@@ -50,6 +51,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 onNewIncomeSource: _addNewIncomeSource,
               ),
               const SizedBox(height: 20),
+              const CalendarEvents(),
             ],
           ),
         ),

@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCalendarsUsageDescription</key>
+	<string>This app needs access to your calendar to display and sync events</string>
+	<key>NSContactsUsageDescription</key>
+	<string>This app needs access to contacts to add event attendees</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+<string>Access most functions for calendar viewing and editing.</string>
 </dict>
 </plist>
