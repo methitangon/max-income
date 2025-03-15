@@ -20,7 +20,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sqflite/darwin"
 
 SPEC CHECKSUMS:
-  device_calendar: 72a1d465d4ef4c5821ee90a31845cb4f1db4c264
+  device_calendar: b55b2c5406cfba45c95a59f9059156daee1f74ed
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   sqflite: c35dad70033b8862124f8337cc994a809fcd9fa3
 

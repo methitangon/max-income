@@ -2,6 +2,7 @@
 
 import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 // Custom event model to handle null values
 class SafeCalendarEvent {
@@ -51,6 +52,10 @@ class CalendarEvents extends StatefulWidget {
 
 class _CalendarEventsState extends State<CalendarEvents> {
   final DeviceCalendarPlugin _deviceCalendarPlugin = DeviceCalendarPlugin();
+  final DateFormat _dateFormat = DateFormat('MMM d, y');
+  final DateFormat _timeFormat = DateFormat('h:mm a');
+  final DateFormat _fullFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
+
   List<Map<String, dynamic>> _events = [];
   bool _isLoading = true;
   String? _error;
@@ -70,7 +75,8 @@ class _CalendarEventsState extends State<CalendarEvents> {
 
       // Request permissions
       var permissionsGranted = await _deviceCalendarPlugin.requestPermissions();
-      debugPrint('Calendar permissions granted: ${permissionsGranted.data}');
+      debugPrint('\n=== Calendar Permissions ===');
+      debugPrint('Permissions granted: ${permissionsGranted.data}');
 
       if (!(permissionsGranted.data ?? false)) {
         setState(() {
@@ -82,6 +88,7 @@ class _CalendarEventsState extends State<CalendarEvents> {
 
       // Get calendars
       final calendarsResult = await _deviceCalendarPlugin.retrieveCalendars();
+      debugPrint('\n=== Available Calendars ===');
       debugPrint('Found ${calendarsResult.data?.length ?? 0} calendars');
 
       if (!calendarsResult.isSuccess ||
@@ -96,95 +103,128 @@ class _CalendarEventsState extends State<CalendarEvents> {
 
       // Log all calendars
       for (var calendar in calendarsResult.data!) {
-        debugPrint('\nCalendar:');
-        debugPrint('- ID: ${calendar.id}');
-        debugPrint('- Name: ${calendar.name}');
-        debugPrint('- Account Name: ${calendar.accountName}');
-        debugPrint('- Is Default: ${calendar.isDefault}');
+        debugPrint('\nCalendar Details:');
+        debugPrint('ID: ${calendar.id}');
+        debugPrint('Name: ${calendar.name}');
+        debugPrint('Account Name: ${calendar.accountName}');
+        debugPrint('Account Type: ${calendar.accountType}');
+        debugPrint('Is Default: ${calendar.isDefault}');
+        debugPrint('Is Read Only: ${calendar.isReadOnly}');
       }
 
-      // Get the default calendar or first available
-      final calendar = calendarsResult.data!.firstWhere(
-        (cal) => cal.isDefault == true,
-        orElse: () => calendarsResult.data!.first,
-      );
+      // Get all calendars instead of just the default one
+      final calendars = calendarsResult.data!;
+      debugPrint('\n=== Fetching Events from All Calendars ===');
 
-      debugPrint('\nSelected calendar: ${calendar.name} (${calendar.id})');
-
-      // Get events
       final now = DateTime.now();
-      final startDate = now.subtract(const Duration(days: 30));
-      final endDate = now.add(const Duration(days: 30));
+      // Extend the range to include tomorrow
+      final startDate = DateTime(now.year, now.month, now.day);
+      final endDate = DateTime(now.year, now.month, now.day + 1, 23, 59, 59);
 
-      final eventsResult = await _deviceCalendarPlugin.retrieveEvents(
-        calendar.id,
-        RetrieveEventsParams(startDate: startDate, endDate: endDate),
-      );
+      debugPrint('Search Period:');
+      debugPrint(
+          'Start: ${_fullFormat.format(startDate)} (${startDate.timeZoneOffset})');
+      debugPrint(
+          'End: ${_fullFormat.format(endDate)} (${endDate.timeZoneOffset})');
 
-      debugPrint('\nEvents result:');
-      debugPrint('Success: ${eventsResult.isSuccess}');
-      debugPrint('Error: ${eventsResult.errors?.join(", ")}');
-      debugPrint('Events count: ${eventsResult.data?.length ?? 0}');
+      final allEvents = <Map<String, dynamic>>[];
 
-      if (eventsResult.data != null) {
-        final safeEvents = <Map<String, dynamic>>[];
+      // Fetch events from all calendars
+      for (final calendar in calendars) {
+        debugPrint(
+            '\nFetching events from calendar: ${calendar.name} (${calendar.id})');
 
-        try {
-          final events = eventsResult.data!;
-          debugPrint('\nEvents found: ${events.length}');
+        final eventsResult = await _deviceCalendarPlugin.retrieveEvents(
+          calendar.id,
+          RetrieveEventsParams(startDate: startDate, endDate: endDate),
+        );
 
-          for (final event in events) {
+        debugPrint('Events Result:');
+        debugPrint('Success: ${eventsResult.isSuccess}');
+        debugPrint('Has Data: ${eventsResult.data != null}');
+        debugPrint('Events Count: ${eventsResult.data?.length ?? 0}');
+
+        if (eventsResult.errors?.isNotEmpty == true) {
+          debugPrint('Errors: ${eventsResult.errors!.join(", ")}');
+        }
+
+        if (eventsResult.data != null) {
+          for (final event in eventsResult.data!) {
             try {
-              debugPrint('\nProcessing event:');
-              debugPrint('- ID: ${event.eventId}');
-              debugPrint('- Title: ${event.title}');
-              debugPrint('- Start: ${event.start}');
+              debugPrint('\n=== Raw Event Data ===');
+              debugPrint('Event ID: ${event.eventId}');
+              debugPrint('Raw Title: "${event.title}"');
+              debugPrint(
+                  'Raw Start: ${event.start} (${event.start?.timeZoneOffset})');
+              debugPrint(
+                  'Raw End: ${event.end} (${event.end?.timeZoneOffset})');
+              debugPrint('All Day: ${event.allDay}');
+              debugPrint('Description: "${event.description}"');
+              debugPrint('Location: "${event.location}"');
+              debugPrint('Calendar ID: ${event.calendarId}');
 
-              // Create a safe map of event data
+              // Convert times to local
+              final startLocal = event.start?.toLocal();
+              final endLocal = event.end?.toLocal();
+
+              debugPrint('\nProcessed Times:');
+              debugPrint(
+                  'Start (Local): ${startLocal != null ? _fullFormat.format(startLocal) : "null"} (${startLocal?.timeZoneOffset})');
+              debugPrint(
+                  'End (Local): ${endLocal != null ? _fullFormat.format(endLocal) : "null"} (${endLocal?.timeZoneOffset})');
+
               final safeEvent = {
                 'id': event.eventId ?? 'No ID',
-                'title': event.title ?? 'No Title',
-                'start': event.start?.toString() ?? 'No Start Date',
-                'end': event.end?.toString() ?? 'No End Date',
+                'calendarId': event.calendarId ?? 'Unknown Calendar',
+                'title': event.title?.trim() ?? 'No Title',
+                'start': startLocal,
+                'end': endLocal,
                 'allDay': event.allDay ?? false,
-                'description': event.description ?? 'No Description',
-                'location': event.location ?? 'No Location',
-                'attendees': event.attendees?.length.toString() ?? '0',
-                'reminders': event.reminders?.length.toString() ?? '0',
+                'description': event.description?.trim() ?? '',
+                'location': event.location?.trim() ?? '',
               };
 
-              debugPrint('Converted to safe event: $safeEvent');
-              safeEvents.add(safeEvent);
-            } catch (e, stack) {
-              debugPrint('Error processing individual event: $e');
-              debugPrint('Stack trace: $stack');
+              debugPrint('\nProcessed Event:');
+              debugPrint(safeEvent.toString());
+
+              allEvents.add(safeEvent);
+            } catch (e) {
+              debugPrint('Error processing event: $e');
               continue;
             }
           }
-        } catch (e, stack) {
-          debugPrint('Error processing events: $e');
-          debugPrint('Stack trace: $stack');
-          debugPrint('Events data type: ${eventsResult.data.runtimeType}');
         }
-
-        setState(() {
-          _events = safeEvents;
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _events = [];
-          _isLoading = false;
-        });
       }
-    } catch (e, stack) {
+
+      // Sort all events by start time
+      allEvents.sort((a, b) {
+        final aStart = a['start'] as DateTime?;
+        final bStart = b['start'] as DateTime?;
+        if (aStart == null || bStart == null) return 0;
+        return aStart.compareTo(bStart);
+      });
+
+      debugPrint('\n=== Final Events Count ===');
+      debugPrint('Total events found: ${allEvents.length}');
+
+      setState(() {
+        _events = allEvents;
+        _isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('\n=== Error ===');
       debugPrint('Error fetching events: $e');
-      debugPrint('Stack trace: $stack');
       setState(() {
         _error = e.toString();
         _isLoading = false;
       });
     }
+  }
+
+  String _formatDateTime(DateTime? dateTime, bool isAllDay) {
+    if (dateTime == null) return 'No time set';
+    if (isAllDay) return _dateFormat.format(dateTime);
+    return '${_dateFormat.format(dateTime)} ${_timeFormat.format(dateTime)}';
   }
 
   @override
@@ -198,8 +238,10 @@ class _CalendarEventsState extends State<CalendarEvents> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Raw Calendar Events',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text(
+                'Calendar Events',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
               IconButton(
                 icon: const Icon(Icons.refresh),
                 onPressed: _fetchEvents,
@@ -217,18 +259,41 @@ class _CalendarEventsState extends State<CalendarEvents> {
 
   Widget _buildContent() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Loading events...'),
+          ],
+        ),
+      );
     }
 
     if (_error != null) {
       return Center(
-        child: Text(_error!, style: const TextStyle(color: Colors.red)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: Colors.red),
+            const SizedBox(height: 16),
+            Text(_error!, style: const TextStyle(color: Colors.red)),
+          ],
+        ),
       );
     }
 
     if (_events.isEmpty) {
       return const Center(
-        child: Text('No events found'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.event_busy, size: 48, color: Colors.grey),
+            SizedBox(height: 16),
+            Text('No events found for this month'),
+          ],
+        ),
       );
     }
 
@@ -236,30 +301,109 @@ class _CalendarEventsState extends State<CalendarEvents> {
       itemCount: _events.length,
       itemBuilder: (context, index) {
         final event = _events[index];
+        final bool isAllDay = event['allDay'] as bool;
+        final DateTime? startTime = event['start'] as DateTime?;
+        final DateTime? endTime = event['end'] as DateTime?;
+
         return Card(
-          margin: const EdgeInsets.only(bottom: 8),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
+          margin: const EdgeInsets.only(bottom: 12),
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(16),
+            title: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    event['title'],
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                if (isAllDay)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Text(
+                      'ALL DAY',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Event ID: ${event['id']}'),
-                const SizedBox(height: 4),
-                Text('Title: ${event['title']}'),
-                const SizedBox(height: 4),
-                Text('Start: ${event['start']}'),
-                const SizedBox(height: 4),
-                Text('End: ${event['end']}'),
-                const SizedBox(height: 4),
-                Text('All Day: ${event['allDay']}'),
-                const SizedBox(height: 4),
-                Text('Description: ${event['description']}'),
-                const SizedBox(height: 4),
-                Text('Location: ${event['location']}'),
-                const SizedBox(height: 4),
-                Text('Attendees: ${event['attendees']}'),
-                const SizedBox(height: 4),
-                Text('Reminders: ${event['reminders']}'),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.access_time, size: 16),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '${_formatDateTime(startTime, isAllDay)} - ${_formatDateTime(endTime, isAllDay)}',
+                      ),
+                    ),
+                  ],
+                ),
+                if (event['location'].isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on, size: 16),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          event['location'],
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+                if (event['description'].isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.notes, size: 16),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ExpansionTile(
+                          title: Text(
+                            event['description'],
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 16,
+                                right: 16,
+                                bottom: 16,
+                              ),
+                              child: Text(
+                                event['description'],
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
