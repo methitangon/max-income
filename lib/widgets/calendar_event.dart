@@ -139,7 +139,10 @@ class _CalendarEventsState extends State<CalendarEvents> {
 
     return ListView.builder(
       itemCount: _events.length,
-      itemBuilder: (context, index) => EventCard(event: _events[index]),
+      itemBuilder: (context, index) => EventCard(
+        event: _events[index],
+        onEventUpdated: _fetchEvents,
+      ),
     );
   }
 }
