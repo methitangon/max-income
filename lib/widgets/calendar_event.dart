@@ -5,8 +5,6 @@ import '../models/safe_calendar_event.dart';
 import '../services/calendar_service.dart';
 import 'event_card.dart';
 
-// Custom event model to handle null values
-
 class CalendarEvents extends StatefulWidget {
   const CalendarEvents({super.key});
 
@@ -43,23 +41,13 @@ class _CalendarEventsState extends State<CalendarEvents> {
         return;
       }
 
-      // Get today's and tomorrow's events
-      final now = DateTime.now();
-      final startDate = DateTime(now.year, now.month, now.day);
-      final endDate = DateTime(now.year, now.month, now.day + 1, 23, 59, 59);
-
-      final events = await _calendarService.getEventsForDateRange(
-        startDate,
-        endDate,
-      );
+      final events = await _calendarService.getCurrentYearEvents();
 
       setState(() {
         _events = events;
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint('\n=== Error ===');
-      debugPrint('Error fetching events: $e');
       setState(() {
         _error = e.toString();
         _isLoading = false;

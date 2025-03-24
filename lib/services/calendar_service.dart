@@ -35,10 +35,16 @@ class CalendarService {
     return calendarsResult.data!;
   }
 
-  Future<List<SafeCalendarEvent>> getEventsForDateRange(
-    DateTime startDate,
-    DateTime endDate,
-  ) async {
+  Future<List<SafeCalendarEvent>> getCurrentYearEvents() async {
+    final now = DateTime.now();
+    final startDate = DateTime(now.year, 1, 1); // January 1st of current year
+    final endDate =
+        DateTime(now.year, 12, 31, 23, 59, 59); // December 31st of current year
+
+    debugPrint('\n=== Date Range ===');
+    debugPrint('Start Date: $startDate');
+    debugPrint('End Date: $endDate');
+
     final calendars = await getCalendars();
     final allEvents = <SafeCalendarEvent>[];
 
@@ -48,7 +54,10 @@ class CalendarService {
 
       final eventsResult = await _deviceCalendarPlugin.retrieveEvents(
         calendar.id,
-        RetrieveEventsParams(startDate: startDate, endDate: endDate),
+        RetrieveEventsParams(
+          startDate: startDate,
+          endDate: endDate,
+        ),
       );
 
       debugPrint('Events Result:');
