@@ -83,8 +83,14 @@ class CalendarService {
             debugPrint('Location: "${event.location}"');
             debugPrint('Calendar ID: ${event.calendarId}');
 
-            final safeEvent = SafeCalendarEvent.fromEvent(event);
-            allEvents.add(safeEvent);
+            // Only add events that have the house emoji at the start of the title
+            if (event.title?.startsWith('🏠') == true) {
+              final safeEvent = SafeCalendarEvent.fromEvent(event);
+              allEvents.add(safeEvent);
+              debugPrint('Added event with house emoji: ${safeEvent.title}');
+            } else {
+              debugPrint('Skipped event without house emoji: ${event.title}');
+            }
           } catch (e) {
             debugPrint('Error processing event: $e');
             continue;
@@ -100,7 +106,7 @@ class CalendarService {
     });
 
     debugPrint('\n=== Final Events Count ===');
-    debugPrint('Total events found: ${allEvents.length}');
+    debugPrint('Total house events found: ${allEvents.length}');
 
     return allEvents;
   }
