@@ -27,23 +27,11 @@ class _EventCardState extends State<EventCard> {
   Future<void> _handleEventPaid() async {
     try {
       final String originalTitle = widget.event.title ?? 'Event';
-      // Only add checkmark if it's not already there
       final String newTitle =
           originalTitle.startsWith('✅') ? originalTitle : '✅ $originalTitle';
 
-      // Log the modification attempt
-      debugPrint('=== Calendar Event Modification ===');
-      debugPrint('Event ID: ${widget.event.id}');
-      debugPrint('Calendar ID: ${widget.event.calendarId}');
-      debugPrint('Original Title: $originalTitle');
-      debugPrint('New Title: $newTitle');
+      if (widget.event.id == null) return;
 
-      if (widget.event.id == null) {
-        debugPrint('Event ID is null');
-        return;
-      }
-
-      // Retrieve the existing event
       final retrieveEventResult = await _deviceCalendarPlugin.retrieveEvents(
         widget.event.calendarId,
         RetrieveEventsParams(
@@ -55,28 +43,16 @@ class _EventCardState extends State<EventCard> {
         final Event eventToUpdate = retrieveEventResult!.data!.first;
         eventToUpdate.title = newTitle;
 
-        // Update the event
         final updateResult = await _deviceCalendarPlugin.createOrUpdateEvent(
           eventToUpdate,
         );
 
         if (updateResult?.isSuccess ?? false) {
-          debugPrint('Successfully updated event title');
-          // Show success toast
           _showPaidToast();
-          // Refresh the events list
           widget.onEventUpdated();
-        } else {
-          debugPrint(
-              'Failed to update event: ${updateResult?.errors?.join(', ')}');
         }
-      } else {
-        debugPrint(
-            'Failed to retrieve event: ${retrieveEventResult?.errors?.join(', ')}');
       }
-    } catch (e) {
-      debugPrint('Error updating event: $e');
-    }
+    } catch (e) {}
   }
 
   void _showPaidToast() {
@@ -140,7 +116,6 @@ class _EventCardState extends State<EventCard> {
                 _hasTriggered = true;
               });
               _handleEventPaid();
-              debugPrint('Event swiped: ${widget.event.title}');
             }
             setState(() {
               _swipeRatio = ratio.clamp(0.0, 1.0);
@@ -169,8 +144,8 @@ class _EventCardState extends State<EventCard> {
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                   colors: [
-                    const Color(0xFF7986CB).withOpacity(0.9), // Light Indigo
-                    const Color(0xFF4DB6AC).withOpacity(0.9), // Light Teal
+                    const Color(0xFF7986CB).withOpacity(0.9),
+                    const Color(0xFF4DB6AC).withOpacity(0.9),
                     Theme.of(context).cardColor,
                   ],
                   stops: [0.0, _swipeRatio, _swipeRatio],
@@ -192,7 +167,6 @@ class _EventCardState extends State<EventCard> {
                     children: [
                       Row(
                         children: [
-                          // Swipe hint with animation
                           TweenAnimationBuilder<double>(
                             tween: Tween<double>(
                               begin: 0,
@@ -209,7 +183,6 @@ class _EventCardState extends State<EventCard> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          // Title and ALL DAY badge
                           Expanded(
                             child: Row(
                               children: [
@@ -368,11 +341,11 @@ class _EventCardState extends State<EventCard> {
     if (start == null || end == null) return Colors.grey;
 
     if (now.isBefore(start)) {
-      return Colors.blue; // Upcoming
+      return Colors.blue;
     } else if (now.isAfter(end)) {
-      return Colors.grey; // Past
+      return Colors.grey;
     } else {
-      return Colors.green; // Ongoing
+      return Colors.green;
     }
   }
 }
