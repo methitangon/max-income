@@ -1,13 +1,9 @@
 // widgets/calendar_events.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:max_income/blocs/calendar_events/calendar_events_bloc.dart';
-import 'package:max_income/blocs/calendar_events/calendar_events_event.dart';
-import 'package:max_income/blocs/calendar_events/calendar_events_state.dart';
-import 'package:max_income/models/safe_calendar_event.dart';
-import 'package:max_income/services/calendar_service.dart';
-import 'package:max_income/widgets/calendar_event_item.dart';
+import '../models/safe_calendar_event.dart';
+import '../services/calendar_service.dart';
+import 'event_card.dart';
 
 class CalendarEvents extends StatefulWidget {
   const CalendarEvents({super.key});
@@ -17,57 +13,123 @@ class CalendarEvents extends StatefulWidget {
 }
 
 class _CalendarEventsState extends State<CalendarEvents> {
+  final CalendarService _calendarService = CalendarService();
+  List<SafeCalendarEvent> _events = [];
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchEvents();
+  }
+
+  Future<void> _fetchEvents() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+
+      // Request permissions
+      final hasPermissions = await _calendarService.requestPermissions();
+      if (!hasPermissions) {
+        setState(() {
+          _error = 'Calendar permissions not granted';
+          _isLoading = false;
+        });
+        return;
+      }
+
+      final events = await _calendarService.getCurrentYearEvents();
+
+      setState(() {
+        _events = events;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => CalendarEventsBloc(
-        calendarService: CalendarService(),
-      )..add(LoadCalendarEvents()),
-      child: BlocBuilder<CalendarEventsBloc, CalendarEventsState>(
-        builder: (context, state) {
-          if (state is CalendarEventsLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (state is CalendarEventsError) {
-            return Center(child: Text(state.message));
-          }
-
-          if (state is CalendarEventsLoaded) {
-            return _buildEventList(state);
-          }
-
-          return const SizedBox.shrink();
-        },
+    return Container(
+      height: 500,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Calendar Events',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              IconButton(
+                icon: const Icon(Icons.refresh),
+                onPressed: _fetchEvents,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: _buildContent(),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildEventList(CalendarEventsLoaded state) {
-    if (state.events.isEmpty) {
+  Widget _buildContent() {
+    if (_isLoading) {
       return const Center(
-        child: Text('No house events found in the current year'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Loading events...'),
+          ],
+        ),
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: () async {
-        context.read<CalendarEventsBloc>().add(RefreshCalendarEvents());
-      },
-      child: ListView.builder(
-        itemCount: state.events.length,
-        itemBuilder: (context, index) {
-          final event = state.events[index];
-          return CalendarEventItem(
-            event: event,
-            isPaid: state.paidEventIds.contains(event.id),
-            onMarkAsPaid: () {
-              context.read<CalendarEventsBloc>().add(
-                    MarkEventAsPaid(event.id),
-                  );
-            },
-          );
-        },
+    if (_error != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: Colors.red),
+            const SizedBox(height: 16),
+            Text(_error!, style: const TextStyle(color: Colors.red)),
+          ],
+        ),
+      );
+    }
+
+    if (_events.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.event_busy, size: 48, color: Colors.grey),
+            SizedBox(height: 16),
+            Text('No events found'),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: _events.length,
+      itemBuilder: (context, index) => EventCard(
+        event: _events[index],
+        onEventUpdated: _fetchEvents,
       ),
     );
   }
