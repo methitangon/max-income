@@ -1,27 +1,25 @@
-// dashboard_screen.dart
 import 'package:flutter/material.dart';
 import 'package:max_income/mock_income_source.dart';
 import 'package:max_income/models/income_source.dart';
-import 'package:max_income/widgets/calendar_event.dart';
 import 'package:max_income/widgets/income_chart.dart';
 import 'package:max_income/widgets/monthly_cash_flow.dart';
 import 'package:max_income/widgets/income_source_list.dart';
 
-class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+class IncomeScreen extends StatefulWidget {
+  const IncomeScreen({super.key});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  State<IncomeScreen> createState() => _IncomeScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _IncomeScreenState extends State<IncomeScreen> {
   final List<IncomeSource> _incomeSources = mockIncomeSources;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MAX income'),
+        title: const Text('Income'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -37,7 +35,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 16),
               AspectRatio(
-                aspectRatio: 16 / 9, // Adjust as needed
+                aspectRatio: 16 / 9,
                 child: Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -50,15 +48,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 incomeSources: _incomeSources,
                 onNewIncomeSource: _addNewIncomeSource,
               ),
-              const SizedBox(height: 20),
-              const CalendarEvents(),
             ],
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Hardcoded new income source for now
           final newIncome = IncomeSource(
             id: _incomeSources.length + 1,
             name: 'New Income ${_incomeSources.length + 1}',
