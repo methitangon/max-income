@@ -2,7 +2,10 @@ import 'package:device_calendar/device_calendar.dart';
 import '../models/safe_calendar_event.dart';
 
 class CalendarService {
-  final DeviceCalendarPlugin _deviceCalendarPlugin = DeviceCalendarPlugin();
+  final DeviceCalendarPlugin _deviceCalendarPlugin;
+
+  CalendarService({DeviceCalendarPlugin? deviceCalendarPlugin})
+      : _deviceCalendarPlugin = deviceCalendarPlugin ?? DeviceCalendarPlugin();
 
   Future<bool> requestPermissions() async {
     final permissionsGranted = await _deviceCalendarPlugin.requestPermissions();
