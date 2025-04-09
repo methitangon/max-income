@@ -235,7 +235,7 @@ class _EventCardState extends State<EventCard> {
                       const SizedBox(height: 12),
                       _buildInfoRow(
                         Icons.access_time_rounded,
-                        '${DateFormatter.formatDateTime(widget.event.startTime, widget.event.isAllDay)} - ${DateFormatter.formatDateTime(widget.event.endTime, widget.event.isAllDay)}',
+                        '${DateFormatter.formatDateTime(widget.event.startTime, widget.event.isAllDay)}',
                       ),
                       if (widget.event.location?.isNotEmpty == true) ...[
                         const SizedBox(height: 8),

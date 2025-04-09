@@ -1,18 +1,21 @@
 // widgets/calendar_events.dart
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../models/safe_calendar_event.dart';
 import '../services/calendar_service.dart';
 import 'event_card.dart';
 
-class CalendarEvents extends StatefulWidget {
-  const CalendarEvents({super.key});
+class CalendarCurrentMonthEvents extends StatefulWidget {
+  const CalendarCurrentMonthEvents({super.key});
 
   @override
-  State<CalendarEvents> createState() => _CalendarEventsState();
+  State<CalendarCurrentMonthEvents> createState() =>
+      _CalendarCurrentMonthEventsState();
 }
 
-class _CalendarEventsState extends State<CalendarEvents> {
+class _CalendarCurrentMonthEventsState
+    extends State<CalendarCurrentMonthEvents> {
   final CalendarService _calendarService = CalendarService();
   List<SafeCalendarEvent> _events = [];
   bool _isLoading = true;
@@ -41,7 +44,7 @@ class _CalendarEventsState extends State<CalendarEvents> {
         return;
       }
 
-      final events = await _calendarService.getCurrentYearEvents();
+      final events = await _calendarService.getCurrentMonthEvents();
 
       setState(() {
         _events = events;
@@ -58,7 +61,6 @@ class _CalendarEventsState extends State<CalendarEvents> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 500,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,9 +68,10 @@ class _CalendarEventsState extends State<CalendarEvents> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Calendar Events',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              Text(
+                'Events for ${DateFormat.MMMM().format(DateTime.now())}',
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               IconButton(
                 icon: const Icon(Icons.refresh),
@@ -77,9 +80,7 @@ class _CalendarEventsState extends State<CalendarEvents> {
             ],
           ),
           const SizedBox(height: 16),
-          Expanded(
-            child: _buildContent(),
-          ),
+          _buildContent(),
         ],
       ),
     );
@@ -125,11 +126,13 @@ class _CalendarEventsState extends State<CalendarEvents> {
       );
     }
 
-    return ListView.builder(
-      itemCount: _events.length,
-      itemBuilder: (context, index) => EventCard(
-        event: _events[index],
-        onEventUpdated: _fetchEvents,
+    return Expanded(
+      child: ListView.builder(
+        itemCount: _events.length,
+        itemBuilder: (context, index) => EventCard(
+          event: _events[index],
+          onEventUpdated: _fetchEvents,
+        ),
       ),
     );
   }
