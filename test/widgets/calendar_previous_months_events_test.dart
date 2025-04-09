@@ -5,14 +5,19 @@ import 'package:mockito/mockito.dart';
 import 'package:max_income/widgets/calendar_previous_months_events.dart';
 import 'package:max_income/services/calendar_service.dart';
 import 'package:max_income/models/safe_calendar_event.dart';
+import 'package:max_income/widgets/event_card.dart';
 import 'package:timezone/timezone.dart' as tz;
-
-@GenerateMocks([CalendarService])
+import 'package:timezone/data/latest.dart' as tz;
 import 'calendar_previous_months_events_test.mocks.dart';
 
+@GenerateMocks([CalendarService])
 void main() {
   late MockCalendarService mockCalendarService;
   late List<SafeCalendarEvent> mockEvents;
+
+  setUpAll(() {
+    tz.initializeTimeZones();
+  });
 
   setUp(() {
     mockCalendarService = MockCalendarService();
@@ -22,14 +27,12 @@ void main() {
         title: '🏠 Event 1',
         startTime: tz.TZDateTime.from(DateTime(2024, 1, 15), tz.local),
         endTime: tz.TZDateTime.from(DateTime(2024, 1, 16), tz.local),
-        allDay: false,
       ),
       SafeCalendarEvent(
         id: '2',
         title: '🏠 Event 2',
         startTime: tz.TZDateTime.from(DateTime(2024, 2, 1), tz.local),
         endTime: tz.TZDateTime.from(DateTime(2024, 2, 2), tz.local),
-        allDay: false,
       ),
     ];
   });
@@ -37,15 +40,15 @@ void main() {
   testWidgets('should not render anything when current month is January',
       (WidgetTester tester) async {
     // Set current date to January
-    final now = DateTime(2024, 1, 1);
     when(mockCalendarService.requestPermissions())
         .thenAnswer((_) async => true);
-    when(mockCalendarService.getCurrentYearEvents())
-        .thenAnswer((_) async => mockEvents);
+    when(mockCalendarService.getPreviousMonthsEvents())
+        .thenAnswer((_) async => []);
 
     await tester.pumpWidget(
       MaterialApp(
-        home: CalendarPreviousMonthsEvents(),
+        home:
+            CalendarPreviousMonthsEvents(calendarService: mockCalendarService),
       ),
     );
 
@@ -57,15 +60,15 @@ void main() {
   testWidgets('should show loading indicator while fetching events',
       (WidgetTester tester) async {
     // Set current date to April
-    final now = DateTime(2024, 4, 1);
     when(mockCalendarService.requestPermissions())
         .thenAnswer((_) async => true);
-    when(mockCalendarService.getCurrentYearEvents())
+    when(mockCalendarService.getPreviousMonthsEvents())
         .thenAnswer((_) async => mockEvents);
 
     await tester.pumpWidget(
       MaterialApp(
-        home: CalendarPreviousMonthsEvents(),
+        home:
+            CalendarPreviousMonthsEvents(calendarService: mockCalendarService),
       ),
     );
 
@@ -77,13 +80,13 @@ void main() {
   testWidgets('should show error message when permissions are denied',
       (WidgetTester tester) async {
     // Set current date to April
-    final now = DateTime(2024, 4, 1);
     when(mockCalendarService.requestPermissions())
         .thenAnswer((_) async => false);
 
     await tester.pumpWidget(
       MaterialApp(
-        home: CalendarPreviousMonthsEvents(),
+        home:
+            CalendarPreviousMonthsEvents(calendarService: mockCalendarService),
       ),
     );
 
@@ -97,15 +100,15 @@ void main() {
   testWidgets('should show "No events found" when there are no events',
       (WidgetTester tester) async {
     // Set current date to April
-    final now = DateTime(2024, 4, 1);
     when(mockCalendarService.requestPermissions())
         .thenAnswer((_) async => true);
-    when(mockCalendarService.getCurrentYearEvents())
+    when(mockCalendarService.getPreviousMonthsEvents())
         .thenAnswer((_) async => []);
 
     await tester.pumpWidget(
       MaterialApp(
-        home: CalendarPreviousMonthsEvents(),
+        home:
+            CalendarPreviousMonthsEvents(calendarService: mockCalendarService),
       ),
     );
 
@@ -119,15 +122,15 @@ void main() {
   testWidgets('should show events from January to previous month',
       (WidgetTester tester) async {
     // Set current date to April
-    final now = DateTime(2024, 4, 1);
     when(mockCalendarService.requestPermissions())
         .thenAnswer((_) async => true);
-    when(mockCalendarService.getCurrentYearEvents())
+    when(mockCalendarService.getPreviousMonthsEvents())
         .thenAnswer((_) async => mockEvents);
 
     await tester.pumpWidget(
       MaterialApp(
-        home: CalendarPreviousMonthsEvents(),
+        home:
+            CalendarPreviousMonthsEvents(calendarService: mockCalendarService),
       ),
     );
 
@@ -142,15 +145,15 @@ void main() {
   testWidgets('should refresh events when refresh button is pressed',
       (WidgetTester tester) async {
     // Set current date to April
-    final now = DateTime(2024, 4, 1);
     when(mockCalendarService.requestPermissions())
         .thenAnswer((_) async => true);
-    when(mockCalendarService.getCurrentYearEvents())
+    when(mockCalendarService.getPreviousMonthsEvents())
         .thenAnswer((_) async => mockEvents);
 
     await tester.pumpWidget(
       MaterialApp(
-        home: CalendarPreviousMonthsEvents(),
+        home:
+            CalendarPreviousMonthsEvents(calendarService: mockCalendarService),
       ),
     );
 
@@ -160,7 +163,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.refresh));
     await tester.pumpAndSettle();
 
-    // Verify that getCurrentYearEvents was called again
-    verify(mockCalendarService.getCurrentYearEvents()).called(2);
+    // Verify that getPreviousMonthsEvents was called again
+    verify(mockCalendarService.getPreviousMonthsEvents()).called(2);
   });
 }
