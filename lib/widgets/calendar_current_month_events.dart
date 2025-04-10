@@ -7,7 +7,12 @@ import '../services/calendar_service.dart';
 import 'event_card.dart';
 
 class CalendarCurrentMonthEvents extends StatefulWidget {
-  const CalendarCurrentMonthEvents({super.key});
+  final CalendarService? calendarService;
+
+  const CalendarCurrentMonthEvents({
+    super.key,
+    this.calendarService,
+  });
 
   @override
   State<CalendarCurrentMonthEvents> createState() =>
@@ -16,7 +21,7 @@ class CalendarCurrentMonthEvents extends StatefulWidget {
 
 class _CalendarCurrentMonthEventsState
     extends State<CalendarCurrentMonthEvents> {
-  final CalendarService _calendarService = CalendarService();
+  late final CalendarService _calendarService;
   List<SafeCalendarEvent> _events = [];
   bool _isLoading = true;
   String? _error;
@@ -24,6 +29,7 @@ class _CalendarCurrentMonthEventsState
   @override
   void initState() {
     super.initState();
+    _calendarService = widget.calendarService ?? CalendarService();
     _fetchEvents();
   }
 
@@ -34,7 +40,6 @@ class _CalendarCurrentMonthEventsState
         _error = null;
       });
 
-      // Request permissions
       final hasPermissions = await _calendarService.requestPermissions();
       if (!hasPermissions) {
         setState(() {
