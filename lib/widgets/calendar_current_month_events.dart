@@ -126,13 +126,13 @@ class _CalendarCurrentMonthEventsState
       );
     }
 
-    return Expanded(
-      child: ListView.builder(
-        itemCount: _events.length,
-        itemBuilder: (context, index) => EventCard(
-          event: _events[index],
-          onEventUpdated: _fetchEvents,
-        ),
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _events.length,
+      itemBuilder: (context, index) => EventCard(
+        event: _events[index],
+        onEventUpdated: _fetchEvents,
       ),
     );
   }

@@ -12,16 +12,18 @@ class CalendarScreen extends StatelessWidget {
         title: const Text('Calendar Events'),
       ),
       body: const SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: CalendarCurrentMonthEvents(),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CalendarCurrentMonthEvents(),
+                SizedBox(height: 16),
+                CalendarPreviousMonthsEvents(),
+              ],
             ),
-            SizedBox(height: 16),
-            Expanded(
-              child: CalendarPreviousMonthsEvents(),
-            ),
-          ],
+          ),
         ),
       ),
     );
