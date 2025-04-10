@@ -11,13 +11,13 @@ class CalendarScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Calendar Events'),
       ),
-      body: SafeArea(
+      body: const SafeArea(
         child: Column(
           children: [
             Expanded(
               child: CalendarCurrentMonthEvents(),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Expanded(
               child: CalendarPreviousMonthsEvents(),
             ),

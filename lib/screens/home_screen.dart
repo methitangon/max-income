@@ -11,7 +11,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 1; // Default to Calendar tab
+  int _selectedIndex = 1; // Set Default to Calendar tab
 
   final List<Widget> _screens = [
     const IncomeScreen(),
