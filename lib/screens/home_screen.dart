@@ -11,12 +11,27 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 1; // Set Default to Calendar tab
+  int _selectedIndex = 1;
 
-  final List<Widget> _screens = [
-    const IncomeScreen(),
-    const CalendarScreen(),
-    const ProfileScreen(),
+  static const _screens = [
+    IncomeScreen(),
+    CalendarScreen(),
+    ProfileScreen(),
+  ];
+
+  static const _navItems = [
+    BottomNavigationBarItem(
+      icon: Icon(Icons.attach_money),
+      label: 'Income',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.calendar_today),
+      label: 'Calendar',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.person),
+      label: 'Profile',
+    ),
   ];
 
   @override
@@ -25,25 +40,8 @@ class _HomeScreenState extends State<HomeScreen> {
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.attach_money),
-            label: 'Income',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Calendar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
+        onTap: (index) => setState(() => _selectedIndex = index),
+        items: _navItems,
       ),
     );
   }
